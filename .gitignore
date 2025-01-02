@@ -2,6 +2,7 @@
 /firebase-debug.log
 /firebase-debug.*.log
 .firebaserc
+./firebaseConfig.ts
 
 # Firebase Hosting
 /firebase.json
@@ -68,4 +69,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
->>>>>>> cb623eb (Initial commit from Create Next App)

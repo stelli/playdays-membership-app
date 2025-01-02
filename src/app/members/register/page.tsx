@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import { db } from "../../../../firebaseConfig"; // Import your Firebase configuration
+import { db } from "../../../../firebase"; // Import your Firebase configuration
 import { collection, addDoc } from "firebase/firestore";
 import addNDaysAfter from "@/app/helpers/addNDaysAfter";
 import { MEMBERSHIP_TYPE, Member, MembershipTypeEnum } from "../types";

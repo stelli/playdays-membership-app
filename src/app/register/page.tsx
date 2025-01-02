@@ -2,7 +2,7 @@
 import { FormEvent, useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../../../firebaseConfig";
+import { auth, db } from "../../../firebase";
 
 const RegisterForm = () => {
   const [username, setUsername] = useState("");
@@ -34,8 +34,8 @@ const RegisterForm = () => {
       setSuccess("User registered successfully!");
       setUsername("");
       setPassword("");
-    } catch (err: any) {
-      setError(err);
+    } catch (err) {
+      setError(String(err));
     } finally {
       setLoading(false);
     }

@@ -2,8 +2,9 @@
 
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Member, MemberSearchResults } from "../types";
-import { db } from "../../../../firebaseConfig";
+import { db } from "../../../../firebase";
 import {
+  QueryFieldFilterConstraint,
   addDoc,
   collection,
   doc,
@@ -34,7 +35,7 @@ export default function SearchMembers() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault(); // Prevent page reload
     const collectionRef = collection(db, "members"); // Reference to the Firestore collection
-    let filters: any[] = []; // Array to hold the filters
+    const filters: QueryFieldFilterConstraint[] = []; // Array to hold the filters
 
     // Add filters conditionally based on input
     if (member.name) {
