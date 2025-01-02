@@ -2,7 +2,7 @@
 /firebase-debug.log
 /firebase-debug.*.log
 .firebaserc
-./firebaseConfig.ts
+firebaseConfig.ts
 
 # Firebase Hosting
 /firebase.json
