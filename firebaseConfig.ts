@@ -1,12 +1,10 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyCtENA0nEfbwQYIbjgrmO01QO7Bfo6g4fE",
-  authDomain: "playdays-playground-member.firebaseapp.com",
-  projectId: "playdays-playground-member",
-  storageBucket: "playdays-playground-member.firebasestorage.app",
-  messagingSenderId: "24622800763",
-  appId: "1:24622800763:web:3724f9d4644953bbf9e7de",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-
-const test = "aaa";
 
 export default firebaseConfig;
