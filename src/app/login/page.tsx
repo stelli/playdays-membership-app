@@ -15,7 +15,7 @@ export default function Login() {
     e.preventDefault();
     try {
       await login(email, password);
-      router.push("/members/search");
+      router.push("/home");
     } catch (err) {
       setError(String(err));
     }
@@ -29,6 +29,8 @@ export default function Login() {
             alt="Your Company"
             src="/playdays-logo-short.svg"
             className="mx-auto h-14 w-auto"
+            width={48}
+            height={48}
           />
           <h3 className="text-center text-xl/9 font-bold tracking-tight text-gray-900">
             Halaman Masuk
