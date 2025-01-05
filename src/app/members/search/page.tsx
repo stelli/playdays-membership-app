@@ -16,6 +16,7 @@ import {
 import isCurrentBirthdateMonth from "@/app/helpers/isCurrentBirthdayMonth";
 import { useAuth } from "@/app/hooks/AuthProvider";
 import withAuth from "@/app/hooks/withAuth";
+import formatDate from "@/app/helpers/formatDate";
 
 type SearchMember = Omit<Member, "type">;
 function SearchMembers() {
@@ -32,6 +33,7 @@ function SearchMembers() {
   >(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -39,6 +41,7 @@ function SearchMembers() {
   };
 
   const handleSubmit = async (e: FormEvent) => {
+    setIsLoading(true);
     e.preventDefault(); // Prevent page reload
     const collectionRef = collection(db, "members"); // Reference to the Firestore collection
     const filters: QueryFieldFilterConstraint[] = []; // Array to hold the filters
@@ -64,6 +67,7 @@ function SearchMembers() {
       if (snapshot.empty) {
         console.log("No matching documents.");
         setSearchMemberResult(null);
+        setIsLoading(false);
         return;
       }
 
@@ -73,13 +77,18 @@ function SearchMembers() {
         ...doc.data(),
       }));
       setSearchMemberResult(results as MemberSearchResults[]);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Error searching members:", error);
       throw new Error("Failed to fetch data.");
     }
   };
 
-  const handleAddRide = async (selectedMember: MemberSearchResults) => {
+  const handleAddRide = async (
+    selectedMember: MemberSearchResults,
+    index: number
+  ) => {
     setIsSubmitting(true);
     const memberRef = doc(db, "members", selectedMember.id);
 
@@ -99,15 +108,17 @@ function SearchMembers() {
         birthdayFreeRidesUsed: selectedMember.birthdayFreeRidesUsed + 1,
       });
 
+      if (searchMemberResult) {
+        const newSearchMemberResult = searchMemberResult;
+        newSearchMemberResult[index] = {
+          ...newSearchMemberResult[index],
+          birthdayFreeRidesUsed:
+            newSearchMemberResult[index].birthdayFreeRidesUsed + 1,
+        };
+      }
+
       alert("Berhasil memakai jatah ultah");
     } else {
-      console.log("add rider", {
-        memberId: selectedMember.id,
-        memberName: selectedMember.name,
-        isBirthdayFreeRide: false,
-        createdAt: new Date().toISOString(),
-        createdBy: user?.email,
-      });
       await addDoc(collection(db, "rides"), {
         memberId: selectedMember.id,
         memberName: selectedMember.name,
@@ -119,6 +130,14 @@ function SearchMembers() {
       await updateDoc(memberRef, {
         rideUsed: selectedMember.rideUsed + 1,
       });
+
+      if (searchMemberResult) {
+        const newSearchMemberResult = searchMemberResult;
+        newSearchMemberResult[index] = {
+          ...newSearchMemberResult[index],
+          rideUsed: newSearchMemberResult[index].rideUsed + 1,
+        };
+      }
       alert("Berhasil memakai jatah permainan");
     }
 
@@ -142,85 +161,133 @@ function SearchMembers() {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <h2>Informasi Member</h2>
-        <div>
-          <label htmlFor="name">
-            Nama:
-            <input
-              type="text"
-              name="name"
-              value={member.name}
-              onChange={handleInputChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label htmlFor="phone">
-            Nomor Handphone:
-            <input
-              type="tel"
-              name="phone"
-              value={member.phone}
-              onChange={handleInputChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label htmlFor="dateOfBirth">
-            Tanggal Lahir:
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={member.dateOfBirth}
-              onChange={handleInputChange}
-            />
-          </label>
-        </div>
-        <div>
-          <label htmlFor="customMemberId">
-            Custom Member ID:
-            <input
-              type="text"
-              name="customMemberId"
-              value={member.customMemberId}
-              onChange={handleInputChange}
-            />
-          </label>
-        </div>
+    <div
+      className="p-4 space-y-4"
+      style={{ maxWidth: "400px", margin: "auto" }}
+    >
+      <h3 className="text-center text-xl/9 font-bold tracking-tight text-gray-900">
+        Halaman Pencarian Member
+      </h3>
+      <form className="grid grid-cols-1 gap-4" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Nama"
+          value={member.name}
+          onChange={handleInputChange}
+          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
+        />
 
-        <button type="submit">Cari</button>
+        <input
+          type="text"
+          name="phone"
+          placeholder="No. HP"
+          value={member.phone}
+          onChange={handleInputChange}
+          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
+        />
+
+        <input
+          type="date"
+          name="dateOfBirth"
+          value={member.dateOfBirth}
+          onChange={handleInputChange}
+          max="2024-12-31"
+          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
+        />
+
+        <input
+          type="text"
+          name="customMemberId"
+          placeholder="Member ID"
+          value={member.customMemberId}
+          onChange={handleInputChange}
+          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
+        />
+        <div className="flex justify-between">
+          <button
+            type="submit"
+            className="px-4 py-2 w-full text-white bg-playdays-purple rounded-md hover:bg-playdays-purple"
+          >
+            Cari Member
+          </button>
+        </div>
       </form>
-      <div>
-        Result :{" "}
-        {searchMemberResult?.map((res) => (
-          <div key={res.id}>
-            <p>Nama : {res.name}</p>
-            <p>Tanggal Lahir : {res.dateOfBirth}</p>
-            <p>
-              Sisa Sesi : {res.maxRides - res.rideUsed} dari {res.maxRides}
-            </p>
-            <p>
-              Sisa Sesi Gratis Khusus Di Bulan Ulang Tahun:{" "}
-              {res.maxBirthdayFreeRides - res.birthdayFreeRidesUsed} dari{" "}
-              {res.maxBirthdayFreeRides}
-            </p>
-            <p>
-              {" "}
-              Aktif Sampai :{" "}
-              {new Intl.DateTimeFormat("id-ID", {
-                dateStyle: "full",
-              }).format(new Date(res.endDate))}
-            </p>
-            <button
-              disabled={checkIsEligibleToRide(res) || isSubmitting}
-              onClick={() => handleAddRide(res)}
-            >
-              Tambah Sesi
-            </button>
-          </div>
-        ))}
+
+      <div className="py-4">
+        <div className="flex flex-col gap-4">
+          {isLoading && <p>Loading...</p>}
+          {!isLoading && !searchMemberResult && (
+            <>
+              <h3 className="text-m/9 font-bold tracking-tight text-gray-900">
+                Hasil Pencarian :
+              </h3>
+              <p>"Tidak ada data yang ditemukan"</p>
+            </>
+          )}
+          {!isLoading && searchMemberResult && (
+            <>
+              <h3 className="text-m/9 font-bold tracking-tight text-gray-900">
+                {` Hasil Pencarian (${searchMemberResult.length}) :`}
+              </h3>
+              {searchMemberResult?.map((result, index) => (
+                <div
+                  className="bg-purple-50 p-4 rounded-lg shadow-md"
+                  key={result.id}
+                >
+                  <h3 className="text-lg font-semibold">{result.name}</h3>
+                  <div>
+                    <div className="grid grid-cols-[1fr_10px_1fr]">
+                      <p className="text-sm text-gray-600">Tanggal Lahir</p>
+                      <p>:</p>
+                      <p>{formatDate(result.dateOfBirth)}</p>
+                    </div>
+
+                    <div className="grid grid-cols-[1fr_10px_1fr]">
+                      <p className="text-sm text-gray-600"> Sisa Sesi</p>
+                      <p>:</p>
+                      <p>
+                        {result.maxRides - result.rideUsed}/{result.maxRides}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-[1fr_10px_1fr]">
+                      <p className="text-sm text-gray-600"> Sisa Sesi Ultah</p>
+                      <p>:</p>
+                      <p>
+                        {result.maxBirthdayFreeRides -
+                          result.birthdayFreeRidesUsed}
+                        /{result.maxBirthdayFreeRides}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-[1fr_10px_1fr]">
+                      <p className="text-sm text-gray-600"> Masa Berlaku</p>
+                      <p>:</p>
+                      <p>{formatDate(result.endDate)}</p>
+                    </div>
+                  </div>
+                  {!checkIsEligibleToRide(result) ? (
+                    <button
+                      className="px-4 py-2 my-2 w-full text-white bg-playdays-purple rounded-md hover:bg-playdays-purple"
+                      disabled={checkIsEligibleToRide(result) || isSubmitting}
+                      onClick={() => handleAddRide(result, index)}
+                    >
+                      Pakai Sesi
+                    </button>
+                  ) : (
+                    <button
+                      className="px-4 py-2 my-2 w-full text-gray-700 bg-gray-400 rounded-md hover:bg-gray-400"
+                      disabled
+                    >
+                      Sesi tidak tersedia
+                    </button>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
