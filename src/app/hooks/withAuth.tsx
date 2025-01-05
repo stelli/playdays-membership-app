@@ -24,10 +24,7 @@ const withAuth = <P extends object>(
       <>
         <div className="flex justify-end">
           <button className="m-2" onClick={() => router.push("/home")}>
-            Halaman Utama
-          </button>
-          <button className="m-2" onClick={logout}>
-            Logout
+            Ke Halaman Utama
           </button>
         </div>
         <WrappedComponent {...props} />

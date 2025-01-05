@@ -3,6 +3,7 @@ import { FormEvent, useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
+import { useRouter } from "next/navigation";
 
 const RegisterForm = () => {
   const [username, setUsername] = useState("");
@@ -10,6 +11,8 @@ const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,6 +37,7 @@ const RegisterForm = () => {
       setSuccess("User registered successfully!");
       setUsername("");
       setPassword("");
+      router.push("/home");
     } catch (err) {
       setError(String(err));
     } finally {
