@@ -74,71 +74,86 @@ const MembershipForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Member Information</h2>
-      <div>
+    <div
+      className="p-4 space-y-4"
+      style={{ maxWidth: "400px", margin: "auto" }}
+    >
+      <h3 className="text-center text-xl/9 font-bold tracking-tight text-gray-900">
+        Halaman Registrasi Member
+      </h3>
+      <form className="grid grid-cols-1 gap-4" onSubmit={handleSubmit}>
         <label>
-          Name:
+          <p> Nama :</p>
           <input
             type="text"
             name="name"
+            placeholder="Nama"
             value={member.name}
             onChange={handleInputChange}
-            required
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
           />
         </label>
-      </div>
-      <div>
+
         <label>
-          Phone:
+          <p>No. Hp :</p>
           <input
-            type="tel"
+            type="text"
             name="phone"
+            placeholder="No. HP"
             value={member.phone}
             onChange={handleInputChange}
-            required
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
           />
         </label>
-      </div>
-      <div>
+
         <label>
-          Date of Birth:
+          <p>Tanggal Lahir : </p>
           <input
             type="date"
             name="dateOfBirth"
             value={member.dateOfBirth}
             onChange={handleInputChange}
-            required
+            max="2024-12-31"
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
           />
         </label>
-      </div>
-      <div>
+
         <label>
-          Custom Member ID:
+          <p>Custom Member ID: </p>
           <input
             type="text"
             name="customMemberId"
+            placeholder="Member ID"
             value={member.customMemberId}
             onChange={handleInputChange}
-            required
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
           />
         </label>
-      </div>
-      <div>
+
         <label htmlFor="type">
-          Tipe member
-          <select name="type" onChange={handleInputChange}>
+          <p>Jenis Member</p>
+          <select
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-playdays-purple"
+            name="type"
+            onChange={handleInputChange}
+          >
             {Object.values(MEMBERSHIP_TYPE)?.map((memberType) => (
               <option key={memberType.label}>{memberType.label}</option>
             ))}
           </select>
         </label>
-      </div>
 
-      <button type="submit" disabled={isSubmitting}>
-        Add Membership
-      </button>
-    </form>
+        <div className="flex justify-between">
+          <button
+            disabled={isSubmitting}
+            type="submit"
+            className="px-4 py-2 w-full text-white bg-playdays-purple rounded-md hover:bg-playdays-purple"
+          >
+            Daftar
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 

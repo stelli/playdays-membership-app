@@ -17,7 +17,7 @@ export interface MemberSearchResults extends Member {
 }
 
 export enum MembershipTypeEnum {
-  ORANGE_SLIDE = "Orange Slde",
+  ORANGE_SLIDE = "Orange Slide",
   FAST_SLIDE = "Fast Slide",
   AIR_SLIDE = "Air Slide",
 }
