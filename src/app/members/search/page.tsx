@@ -13,9 +13,13 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import isCurrentBirthdateMonth from "@/app/helpers/isCurrentBirthdayMonth";
+import { useAuth } from "@/app/hooks/AuthProvider";
+import withAuth from "@/app/hooks/withAuth";
 
 type SearchMember = Omit<Member, "type">;
-export default function SearchMembers() {
+function SearchMembers() {
+  const { user } = useAuth();
   const [member, setMember] = useState<SearchMember>({
     name: "",
     phone: "",
@@ -26,6 +30,8 @@ export default function SearchMembers() {
   const [searchMemberResult, setSearchMemberResult] = useState<
     MemberSearchResults[] | null
   >(null);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -74,13 +80,11 @@ export default function SearchMembers() {
   };
 
   const handleAddRide = async (selectedMember: MemberSearchResults) => {
-    const birthMonth = new Date(selectedMember.dateOfBirth).getMonth();
-    const currentMonth = new Date().getMonth();
-
+    setIsSubmitting(true);
     const memberRef = doc(db, "members", selectedMember.id);
 
     if (
-      birthMonth == currentMonth &&
+      isCurrentBirthdateMonth(selectedMember.dateOfBirth) &&
       selectedMember.birthdayFreeRidesUsed < selectedMember.maxBirthdayFreeRides
     ) {
       await addDoc(collection(db, "rides"), {
@@ -88,6 +92,7 @@ export default function SearchMembers() {
         memberName: selectedMember.name,
         isBirthdayFreeRide: true,
         createdAt: new Date().toISOString(),
+        createdBy: user?.email,
       });
 
       await updateDoc(memberRef, {
@@ -95,29 +100,43 @@ export default function SearchMembers() {
       });
 
       alert("Berhasil memakai jatah ultah");
+    } else {
+      console.log("add rider", {
+        memberId: selectedMember.id,
+        memberName: selectedMember.name,
+        isBirthdayFreeRide: false,
+        createdAt: new Date().toISOString(),
+        createdBy: user?.email,
+      });
+      await addDoc(collection(db, "rides"), {
+        memberId: selectedMember.id,
+        memberName: selectedMember.name,
+        isBirthdayFreeRide: false,
+        createdAt: new Date().toISOString(),
+        createdBy: user?.email,
+      });
+
+      await updateDoc(memberRef, {
+        rideUsed: selectedMember.rideUsed + 1,
+      });
+      alert("Berhasil memakai jatah permainan");
     }
 
-    await addDoc(collection(db, "rides"), {
-      memberId: selectedMember.id,
-      memberName: selectedMember.name,
-      isBirthdayFreeRide: false,
-      createdAt: new Date().toISOString(),
-    });
-
-    await updateDoc(memberRef, {
-      rideUsed: selectedMember.rideUsed + 1,
-    });
-    alert("Berhasil memakai jatah permainan");
+    setIsSubmitting(false);
   };
 
   const checkIsEligibleToRide = (member: MemberSearchResults) => {
     const isExpired =
       new Date(member.endDate).getTime() <= new Date().getTime();
+
+    const totalBirthdayFreeRidesUsed = isCurrentBirthdateMonth(
+      member.dateOfBirth
+    )
+      ? member.maxBirthdayFreeRides - member.birthdayFreeRidesUsed
+      : 0;
+
     const isNoFreeRideAvailable =
-      member.maxRides -
-        member.rideUsed +
-        (member.maxBirthdayFreeRides - member.birthdayFreeRidesUsed) ==
-      0;
+      member.maxRides - member.rideUsed + totalBirthdayFreeRidesUsed == 0;
 
     return isExpired || isNoFreeRideAvailable;
   };
@@ -178,12 +197,14 @@ export default function SearchMembers() {
         {searchMemberResult?.map((res) => (
           <div key={res.id}>
             <p>Nama : {res.name}</p>
+            <p>Tanggal Lahir : {res.dateOfBirth}</p>
             <p>
-              Sisa Jumlah Main :{" "}
-              {res.maxRides -
-                res.rideUsed +
-                (res.maxBirthdayFreeRides - res.birthdayFreeRidesUsed)}{" "}
-              dari {res.maxRides + res.maxBirthdayFreeRides}
+              Sisa Sesi : {res.maxRides - res.rideUsed} dari {res.maxRides}
+            </p>
+            <p>
+              Sisa Sesi Gratis Khusus Di Bulan Ulang Tahun:{" "}
+              {res.maxBirthdayFreeRides - res.birthdayFreeRidesUsed} dari{" "}
+              {res.maxBirthdayFreeRides}
             </p>
             <p>
               {" "}
@@ -193,10 +214,10 @@ export default function SearchMembers() {
               }).format(new Date(res.endDate))}
             </p>
             <button
-              disabled={checkIsEligibleToRide(res)}
+              disabled={checkIsEligibleToRide(res) || isSubmitting}
               onClick={() => handleAddRide(res)}
             >
-              Tambah Permainan
+              Tambah Sesi
             </button>
           </div>
         ))}
@@ -204,3 +225,5 @@ export default function SearchMembers() {
     </div>
   );
 }
+
+export default withAuth(SearchMembers);

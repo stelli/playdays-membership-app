@@ -5,8 +5,11 @@ import { db } from "../../../../firebase"; // Import your Firebase configuration
 import { collection, addDoc } from "firebase/firestore";
 import addNDaysAfter from "@/app/helpers/addNDaysAfter";
 import { MEMBERSHIP_TYPE, Member, MembershipTypeEnum } from "../types";
+import { useAuth } from "@/app/hooks/AuthProvider";
+import withAuth from "@/app/hooks/withAuth";
 
 const MembershipForm: React.FC = () => {
+  const { user } = useAuth();
   const [member, setMember] = useState<Member>({
     name: "",
     phone: "",
@@ -41,6 +44,7 @@ const MembershipForm: React.FC = () => {
       maxBirthdayFreeRides: selectedMemberType.birthdayFreeRides,
       rideUsed: 0,
       birthdayFreeRidesUsed: 0,
+      createdBy: user?.email,
     };
 
     try {
@@ -138,4 +142,4 @@ const MembershipForm: React.FC = () => {
   );
 };
 
-export default MembershipForm;
+export default withAuth(MembershipForm);
