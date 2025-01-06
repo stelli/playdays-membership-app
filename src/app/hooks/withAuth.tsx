@@ -1,7 +1,6 @@
 import { useAuth } from "./AuthProvider";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
-import { logout } from "../services/auth";
 
 const withAuth = <P extends object>(
   WrappedComponent: React.ComponentType<P>

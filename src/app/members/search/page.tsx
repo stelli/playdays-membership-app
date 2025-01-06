@@ -222,7 +222,7 @@ function SearchMembers() {
               <h3 className="text-m/9 font-bold tracking-tight text-gray-900">
                 Hasil Pencarian :
               </h3>
-              <p>"Tidak ada data yang ditemukan"</p>
+              <p>Tidak ada data yang ditemukan</p>
             </>
           )}
           {!isLoading && searchMemberResult && (
