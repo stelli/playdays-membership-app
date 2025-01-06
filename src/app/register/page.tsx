@@ -37,7 +37,7 @@ const RegisterForm = () => {
       setSuccess("User registered successfully!");
       setUsername("");
       setPassword("");
-      router.push("/home");
+      router.push("/");
     } catch (err) {
       setError(String(err));
     } finally {

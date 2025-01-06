@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { logout } from "../services/auth";
-import { useAuth } from "../hooks/AuthProvider";
+import { logout } from "./services/auth";
+import { useAuth } from "./hooks/AuthProvider";
 
 function HomePage() {
   const router = useRouter();

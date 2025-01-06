@@ -22,7 +22,7 @@ const withAuth = <P extends object>(
     return (
       <>
         <div className="flex justify-end">
-          <button className="m-2" onClick={() => router.push("/home")}>
+          <button className="m-2" onClick={() => router.push("/")}>
             Ke Halaman Utama
           </button>
         </div>

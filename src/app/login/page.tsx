@@ -15,7 +15,7 @@ export default function Login() {
     e.preventDefault();
     try {
       await login(email, password);
-      router.push("/home");
+      router.push("/");
     } catch (err) {
       setError(String(err));
     }
